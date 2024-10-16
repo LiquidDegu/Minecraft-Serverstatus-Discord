@@ -3,6 +3,9 @@ from discord.ext import commands
 from mcstatus import JavaServer
 import re
 import os
+import webserver
+
+DISCORD_TOKEN = os.environ['discordkey']
 
 # Mapping Minecraft color/format codes to Discord (or plain text)
 MINECRAFT_FORMATTING_CODES = {
@@ -112,5 +115,5 @@ async def mcstatus(ctx, server_ip: str):
             f"Player List: {player_list}"
         )
         await ctx.send(response)
-DISCORD_TOKEN = os.environ['discordkey']
+webserver.keep_alive()
 bot.run(DISCORD_TOKEN)
