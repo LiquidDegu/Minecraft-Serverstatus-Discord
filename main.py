@@ -6,6 +6,13 @@ import os
 import webserver
 
 DISCORD_TOKEN = os.environ['discordkey']
+
+
+# Define bot and its command prefix
+intents = discord.Intents.default()
+intents.message_content = True  # Enable the message content intent
+bot = commands.Bot(command_prefix="!", intents=intents)
+
 # Global variables to store the Minecraft server IP, update interval, and custom "0 players" message
 minecraft_server_ip = "play.examplemcserver.com"  # Default server IP
 update_interval = 120  # Default update interval in seconds
