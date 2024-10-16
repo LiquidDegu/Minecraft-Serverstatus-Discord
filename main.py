@@ -8,15 +8,16 @@ import webserver
 DISCORD_TOKEN = os.environ['discordkey']
 
 
+# Global variables to store the Minecraft server IP, update interval, and custom messages
+minecraft_server_ip = "play.examplemcserver.com"  # Default server IP
+update_interval = 120  # Default update interval in seconds
+no_players_message = "Keiner da"  # Default message when 0 players are online
+players_suffix = "Leute online"  # Default suffix after the player count
+
 # Define bot and its command prefix
 intents = discord.Intents.default()
 intents.message_content = True  # Enable the message content intent
 bot = commands.Bot(command_prefix="!", intents=intents)
-
-# Global variables to store the Minecraft server IP, update interval, and custom "0 players" message
-minecraft_server_ip = "play.examplemcserver.com"  # Default server IP
-update_interval = 120  # Default update interval in seconds
-no_players_message = "Keiner da"  # Default message when 0 players are online
 
 # Mapping Minecraft formatting codes to Discord-compatible formats (for bold, italic, etc.)
 MINECRAFT_FORMATTING_CODES = {
@@ -91,8 +92,8 @@ async def update_status():
             # If no players are online, use the custom message
             await bot.change_presence(activity=discord.Game(no_players_message))
         else:
-            # If players are online, update the bot's status in German and include the MOTD
-            await bot.change_presence(activity=discord.Game(f"{online_players} Spieler sind online - {server_info['motd']}"))
+            # Display the number of players with the customizable suffix
+            await bot.change_presence(activity=discord.Game(f"{online_players} {players_suffix}"))
 
 # Start the status update loop when the bot is ready
 @bot.event
@@ -143,6 +144,19 @@ async def setnoplayersmsg(ctx, message: str):
     no_players_message = message
     await ctx.send(f"Updated 'no players' message to: {no_players_message}")
 
+# Command to set the suffix for the online players message
+@bot.command(name="setplayerssuffix")
+async def setplayerssuffix(ctx, suffix: str):
+    """
+    Command to set the suffix for the number of players online.
+    
+    Usage: !setplayerssuffix <suffix>
+    Example: !setplayerssuffix Spieler online
+    """
+    global players_suffix
+    players_suffix = suffix
+    await ctx.send(f"Updated players suffix to: {players_suffix}")
+
 # Command to manually check the Minecraft server status and MOTD
 @bot.command(name="mcstatus")
 async def mcstatus(ctx, server_ip: str = None):
@@ -161,5 +175,8 @@ async def mcstatus(ctx, server_ip: str = None):
         await ctx.send(f"Es sind aktuell {server_info['players_online']} Spieler online auf {ip_to_check}.")
         await ctx.send(f"MOTD: {server_info['motd']}")
 
+# Start the web server for keeping the bot alive
 webserver.keep_alive()
+
+# Run the bot using the token stored in the environment variable
 bot.run(DISCORD_TOKEN)
